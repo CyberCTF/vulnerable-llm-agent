@@ -1,0 +1,6 @@
+# Isoloom: local state of the generated outputs (the generated files themselves are committed)
+.isoloom/**/.vagrant/
+.isoloom/**/.terraform/
+.isoloom/**/.terraform.lock.hcl
+.isoloom/**/*.tfstate*
+.isoloom/**/.isoloom-project*.tgz

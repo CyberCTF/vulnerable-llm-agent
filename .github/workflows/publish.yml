@@ -1,0 +1,28 @@
+name: Register lab
+
+# Registers this lab with CyberCTF at the pushed commit, through the shared, hardened
+# CyberCTF/publish-lab-action. The backend and token endpoints come from organization secrets,
+# not this file, and the publish waits for a maintainer to approve it (the `production`
+# environment), so a push can never put a lab in the catalogue on its own.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  register:
+    if: github.repository != 'CyberCTF/Lab-Template'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: isoloom/isoloom@v0.8.1
+      - run: isoloom generate
+      - uses: CyberCTF/publish-lab-action@v1
+        with:
+          client_id: ${{ secrets.CYBERAUTH_CLIENT_ID }}
+          client_secret: ${{ secrets.CYBERAUTH_CLIENT_SECRET }}
+          backend_url: ${{ secrets.CYBERBACKEND_URL }}
+          token_url: ${{ secrets.CYBERAUTH_TOKEN_URL }}

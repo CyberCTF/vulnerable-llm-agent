@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://www.isoloom.com/schema/v1.json
+# Damn Vulnerable LLM Agent (by WithSecure / ReversecLabs) as an Isoloom spec: the upstream
+# Streamlit / LangChain source, vendored unchanged in build/agent/app/, built by its Dockerfile
+# with the dependencies pinned by date. The agent calls OpenAI: the runner provides
+# OPENAI_API_KEY at launch (an input). Without it the app starts but cannot answer.
+# `isoloom generate`, then `isoloom up docker`.
+version: 1
+name: vulnerable-llm-agent
+
+networks:
+  lab: { cidr: 10.60.36.0/24, internet: true }
+
+inputs: [OPENAI_API_KEY]
+
+machines:
+  agent:
+    networks: { lab: 10 }
+    services: [{ port: 8501, name: web, http: true, publish: 8501 }]
+    inputs: [OPENAI_API_KEY]
+    resources: { cpus: 1, memory_mb: 1024 }
+    docker:
+      build: build/agent
+
+checks:
+  - name: the Streamlit app answers
+    http: http://agent:8501/
+    wait: 240
+  - name: Streamlit reports healthy
+    http: http://agent:8501/_stcore/health
+
+message: |
+  Damn Vulnerable LLM Agent answers at http://localhost:{{ machines.agent.services.0.publish }}/.
+  It needs an OpenAI API key: set OPENAI_API_KEY when you launch the lab, or the chatbot cannot
+  answer. Ask for your recent transactions, then make the agent fetch another user's (userId 2).

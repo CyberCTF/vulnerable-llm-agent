@@ -1,0 +1,133 @@
+{
+  "generated_by_isoloom": "from isoloom.yml; don't edit: change the spec and run `isoloom generate` (`isoloom check` fails when this file is out of date)",
+  "resolved_version": 1,
+  "name": "vulnerable-llm-agent",
+  "instance": null,
+  "inputs": [
+    "OPENAI_API_KEY"
+  ],
+  "networks": {
+    "lab": {
+      "cidr": "10.60.36.0/24",
+      "docker_cidr": "10.60.36.0/24",
+      "internet": true,
+      "gateway": null,
+      "gateway_address": "10.60.36.1",
+      "router": null,
+      "controller": "10.60.36.253"
+    }
+  },
+  "reach": [],
+  "machines": {
+    "agent": {
+      "access": false,
+      "supplied": false,
+      "shapes": [
+        "docker"
+      ],
+      "arch": "amd64",
+      "os": null,
+      "windows": false,
+      "addresses": {
+        "lab": "10.60.36.10"
+      },
+      "docker_addresses": {
+        "lab": "10.60.36.10"
+      },
+      "services": [
+        {
+          "port": 8501,
+          "name": "web",
+          "http": true,
+          "publish": 8501
+        }
+      ],
+      "depends_on": [],
+      "inputs": [
+        "OPENAI_API_KEY"
+      ],
+      "volumes": {},
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 1024,
+        "disk_gb": 20
+      },
+      "gateway_of": [],
+      "routes": [],
+      "default_gateway": null,
+      "offline": false
+    }
+  },
+  "start_order": [
+    "agent"
+  ],
+  "clones": {},
+  "tools": {},
+  "groups": {},
+  "router": null,
+  "controller": {
+    "addresses": {
+      "lab": "10.60.36.253"
+    }
+  },
+  "published": [
+    {
+      "machine": "agent",
+      "port": 8501,
+      "host_port": 8501
+    }
+  ],
+  "targets": {
+    "possible": [
+      "docker",
+      "hosted",
+      "docker-vm",
+      "cloud-docker",
+      "kubernetes"
+    ],
+    "generated": [
+      "docker",
+      "hosted",
+      "docker-vm",
+      "cloud-docker",
+      "kubernetes"
+    ],
+    "refused": {},
+    "not_possible": {
+      "hybrid": "only when some machines are containers and others are VMs",
+      "vagrant": "needs `vm:` on agent",
+      "proxmox": "needs `vm:` on agent",
+      "cloud-vm": "needs `vm:` on agent",
+      "external": "needs `external:` on agent"
+    }
+  },
+  "checks": {
+    "default_position": "networks",
+    "positions": [
+      {
+        "position": "networks",
+        "machine": null,
+        "runner": "isoloom-check",
+        "checks": [
+          {
+            "name": "the Streamlit app answers",
+            "derived": false,
+            "kind": "http",
+            "target": "http://agent:8501/",
+            "expect": "200",
+            "wait": 240
+          },
+          {
+            "name": "Streamlit reports healthy",
+            "derived": false,
+            "kind": "http",
+            "target": "http://agent:8501/_stcore/health",
+            "expect": "200",
+            "wait": 30
+          }
+        ]
+      }
+    ]
+  },
+  "message": "Damn Vulnerable LLM Agent answers at http://localhost:8501/.\nIt needs an OpenAI API key: set OPENAI_API_KEY when you launch the lab, or the chatbot cannot\nanswer. Ask for your recent transactions, then make the agent fetch another user's (userId 2).\n"
+}
