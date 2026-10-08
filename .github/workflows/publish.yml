@@ -4,6 +4,9 @@ name: Register lab
 # CyberCTF/publish-lab-action. The backend and token endpoints come from organization secrets,
 # not this file, and the publish waits for a maintainer to approve it (the `production`
 # environment), so a push can never put a lab in the catalogue on its own.
+#
+# A lab not yet approved (private, not in the publishing secrets' repository list) skips the
+# registration with a notice instead of failing.
 on:
   push:
     branches: [main]
@@ -17,10 +20,25 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: isoloom/isoloom@v0.8.1
-      - run: isoloom generate
-      - uses: CyberCTF/publish-lab-action@v1
+      - name: Publishing enabled for this repository?
+        id: gate
+        env:
+          CLIENT_ID: ${{ secrets.CYBERAUTH_CLIENT_ID }}
+        run: |
+          if [ -n "$CLIENT_ID" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Not registered: this lab isn't approved for the catalogue yet (it isn't in the CyberCTF publishing secrets' repository list)."
+          fi
+      - if: steps.gate.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+      - if: steps.gate.outputs.enabled == 'true'
+        uses: isoloom/isoloom@v0.8.1
+      - if: steps.gate.outputs.enabled == 'true'
+        run: isoloom generate
+      - if: steps.gate.outputs.enabled == 'true'
+        uses: CyberCTF/publish-lab-action@v1
         with:
           client_id: ${{ secrets.CYBERAUTH_CLIENT_ID }}
           client_secret: ${{ secrets.CYBERAUTH_CLIENT_SECRET }}
