@@ -21,7 +21,7 @@ still starts, but the chatbot cannot answer.
 
 ```bash
 isoloom generate
-OPENAI_API_KEY=sk-... isoloom up docker
+OPENAI_API_KEY=sk-... isoloom run docker
 ```
 
 Then open http://localhost:8501/ and ask for your recent transactions. The same spec runs as
