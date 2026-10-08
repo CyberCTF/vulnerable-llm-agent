@@ -12,6 +12,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# One registration waiting for approval per lab: a newer push replaces the older pending run.
+concurrency:
+  group: register-lab
+  cancel-in-progress: true
+
 jobs:
   register:
     if: github.repository != 'CyberCTF/Lab-Template'
@@ -34,7 +39,7 @@ jobs:
       - if: steps.gate.outputs.enabled == 'true'
         uses: actions/checkout@v4
       - if: steps.gate.outputs.enabled == 'true'
-        uses: isoloom/isoloom@v0.8.1
+        uses: isoloom/isoloom@v0.9.0
       - if: steps.gate.outputs.enabled == 'true'
         run: isoloom generate
       - if: steps.gate.outputs.enabled == 'true'
