@@ -46,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # The Isoloom release the lab is generated with.
-      - uses: isoloom/isoloom@v0.10.0
+      - uses: isoloom/isoloom@v0.10.1
       - run: isoloom validate
       - name: Generated files are current (run `isoloom generate` and commit)
         run: isoloom check
@@ -61,12 +61,16 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-      - uses: isoloom/isoloom@v0.10.0
+      - uses: isoloom/isoloom@v0.10.1
       - name: Free disk space (some labs pull several GB of images)
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           docker system prune -af >/dev/null
           df -h / | tail -1
+      # Ubuntu 24.04 runners refuse unprivileged user namespaces (AppArmor); sandboxed challenges
+      # (nsjail, as on Google's CTF infrastructure) need them, as on a player's Docker host.
+      - name: Allow user namespaces
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Start the lab (as players do, `isoloom run docker`)
         run: isoloom run docker
       - name: Checks (the lab's, and the ones derived from the spec, from every machine)
@@ -108,4 +112,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Vagrantfiles parse
-        run: for f in .isoloom/*/Vagrantfile; do ruby -c "$f"; done
+        run: |
+          shopt -s nullglob  # a cloud-services lab has no Vagrantfile
+          for f in .isoloom/*/Vagrantfile; do ruby -c "$f"; done
