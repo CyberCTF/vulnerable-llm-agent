@@ -98,7 +98,8 @@
       "vagrant": "needs `vm:` on agent",
       "proxmox": "needs `vm:` on agent",
       "cloud-vm": "needs `vm:` on agent",
-      "external": "needs `external:` on agent"
+      "external": "needs `external:` on agent",
+      "cloud-services": "left out by `targets:`"
     }
   },
   "checks": {
