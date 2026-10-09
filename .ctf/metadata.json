@@ -4,6 +4,5 @@
   "question": "Make the agent reveal another user's transactions, then get the second flag.",
   "category": "MISC",
   "difficulty": 2,
-  "evidence_kind": "SECRET",
-  "capabilities": ["prompt-injection", "llm-agent-attacks", "sql-injection"]
+  "evidence_kind": "SECRET"
 }
