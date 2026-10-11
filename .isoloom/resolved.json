@@ -4,7 +4,8 @@
   "name": "vulnerable-llm-agent",
   "instance": null,
   "inputs": [
-    "OPENAI_API_KEY"
+    "OPENAI_API_KEY",
+    "CTF_FLAG_MAIN"
   ],
   "networks": {
     "lab": {
@@ -44,9 +45,12 @@
       ],
       "depends_on": [],
       "inputs": [
-        "OPENAI_API_KEY"
+        "OPENAI_API_KEY",
+        "CTF_FLAG_MAIN"
       ],
-      "volumes": {},
+      "volumes": {
+        "data": "/app/data"
+      },
       "resources": {
         "cpus": 1,
         "memory_mb": 1024,

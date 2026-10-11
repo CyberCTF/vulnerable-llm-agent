@@ -10,16 +10,18 @@ name: vulnerable-llm-agent
 networks:
   lab: { cidr: 10.60.36.0/24, internet: true }
 
-inputs: [OPENAI_API_KEY]
+inputs: [OPENAI_API_KEY, CTF_FLAG_MAIN]
 
 machines:
   agent:
     networks: { lab: 10 }
     services: [{ port: 8501, name: web, http: true, publish: 8501 }]
-    inputs: [OPENAI_API_KEY]
+    inputs: [OPENAI_API_KEY, CTF_FLAG_MAIN]
     resources: { cpus: 1, memory_mb: 1024 }
+    volumes: { data: /app/data }   # the transactions database, where ctf/flag.sh writes the flag
     docker:
       build: build/agent
+      init: [ctf/flag.sh]
 
 checks:
   - name: the Streamlit app answers

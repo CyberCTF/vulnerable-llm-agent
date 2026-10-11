@@ -5,3 +5,10 @@ kind: Kustomization
 namespace: isoloom-vulnerable-llm-agent
 resources:
   - environment.yaml
+# The project's scripts the pods run (init jobs, checks), read from the project at apply time.
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  - name: isoloom-scripts
+    files:
+      - ctf__flag.sh=../../ctf/flag.sh

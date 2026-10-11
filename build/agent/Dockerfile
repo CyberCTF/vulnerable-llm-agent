@@ -30,6 +30,10 @@ RUN pip3 install -r requirements.txt
 
 COPY app/config.toml /root/.streamlit/config.toml
 
+# The transactions database lives in /app/data (a volume) so ctf/flag.sh can put the CTF flag in
+# it before the agent seeds the rest; the application opens it at its usual path (a symlink).
+RUN mkdir -p /app/data && ln -s /app/data/transactions.db /app/transactions.db
+
 EXPOSE 8501
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health

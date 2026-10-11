@@ -1,0 +1,35 @@
+{
+  "objectives": [
+    {
+      "key": "main",
+      "title": "Read the flag",
+      "prompt": "Make the banking agent fetch the transactions of another customer (userId 2). The flag is the recipient of one of them.",
+      "check": { "evidence": "SECRET", "format": "FLAG{%s}" },
+      "dev": "FLAG{dev-vulnerable-llm-agent}",
+      "hints": [
+        "The agent decides which tool to call and with which userId from the conversation itself.",
+        "Look up prompt injection against ReAct agents: what if the model believed it had already observed a different current user?"
+      ],
+      "steps": [
+        {
+          "key": "pattern",
+          "title": "Name the agent pattern",
+          "prompt": "Which LLM agent pattern alternates Thought, Action and Observation steps? (its name)",
+          "check": { "answer": ["react", "re-act", "reason and act"] }
+        },
+        {
+          "key": "tool",
+          "title": "Find the tool",
+          "prompt": "Besides fetching transactions, which other tool does the agent call first to learn who you are? (what it returns)",
+          "check": { "answer": ["current user", "get current user", "getcurrentuser", "user id", "userid"] }
+        },
+        {
+          "key": "class",
+          "title": "Name the flaw",
+          "prompt": "Which vulnerability class makes the model follow instructions hidden in your message?",
+          "check": { "answer": ["prompt injection", "llm prompt injection"] }
+        }
+      ]
+    }
+  ]
+}

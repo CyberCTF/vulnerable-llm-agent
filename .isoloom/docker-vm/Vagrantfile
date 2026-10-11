@@ -10,6 +10,7 @@ PROJECT = Dir.children(ROOT).reject { |e| [".git", ".vagrant"].include?(e) }.sor
 # Values provided at launch (empty when unset).
 INPUTS = {
   "OPENAI_API_KEY" => ENV.fetch("OPENAI_API_KEY", ""),
+  "CTF_FLAG_MAIN" => ENV.fetch("CTF_FLAG_MAIN", ""),
 }
 
 Vagrant.configure("2") do |config|
@@ -67,6 +68,6 @@ Vagrant.configure("2") do |config|
     config.vm.provision "file", source: File.join(ROOT, entry), destination: "/tmp/isoloom-project/#{entry}"
   end
   config.vm.provision "shell", name: "project", inline: "rm -rf /opt/isoloom && mv /tmp/isoloom-project /opt/isoloom"
-  config.vm.provision "shell", name: "environment", inline: "cd /opt/isoloom && ISOLOOM_PUBLISH_ADDRESS=0.0.0.0 ISOLOOM_PUBLISH_FIXED=1 docker compose -f .isoloom/docker/compose.yml up -d --build --wait --wait-timeout 900 && mkdir -p /var/lib/isoloom && echo ready > /var/lib/isoloom/ready", env: INPUTS
+  config.vm.provision "shell", name: "environment", inline: "cd /opt/isoloom && ISOLOOM_PUBLISH_ADDRESS=0.0.0.0 ISOLOOM_PUBLISH_FIXED=1 docker compose -f .isoloom/docker/compose.yml up -d --build --wait --wait-timeout 900 $(ISOLOOM_PUBLISH_ADDRESS=0.0.0.0 ISOLOOM_PUBLISH_FIXED=1 docker compose -f .isoloom/docker/compose.yml config --services | grep -vx -e agent-init-1) && ISOLOOM_PUBLISH_ADDRESS=0.0.0.0 ISOLOOM_PUBLISH_FIXED=1 docker compose -f .isoloom/docker/compose.yml up --no-deps --exit-code-from agent-init-1 agent-init-1 && mkdir -p /var/lib/isoloom && echo ready > /var/lib/isoloom/ready", env: INPUTS
   config.vm.provision "shell", name: "checks", run: "never", inline: "cd /opt/isoloom && failed=0; sa=$(docker compose -f .isoloom/docker/compose.yml --profile check config --services | grep -x -e isoloom-access -e isoloom-access-routes); [ -z \"$sa\" ] || docker compose -f .isoloom/docker/compose.yml --profile check up -d --wait --no-deps $sa; for s in $(docker compose -f .isoloom/docker/compose.yml --profile check config --services | grep '^isoloom-check'); do docker compose -f .isoloom/docker/compose.yml --profile check run --rm --no-deps -e ISOLOOM_DERIVED \"$s\" || failed=1; done; exit $failed", env: INPUTS.merge({ "ISOLOOM_DERIVED" => ENV.fetch("ISOLOOM_DERIVED", "1") })
 end

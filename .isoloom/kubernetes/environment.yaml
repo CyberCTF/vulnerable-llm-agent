@@ -6,7 +6,7 @@
 # Images built from the project, before starting (a local cluster sharing Docker's images:
 # OrbStack, Docker Desktop; elsewhere, push them to a registry the cluster pulls from):
 #   docker build -t isoloom/vulnerable-llm-agent-agent build/agent
-# Inputs (optional, unset ones are empty): kubectl -n isoloom-vulnerable-llm-agent create secret generic isoloom-inputs --from-literal=OPENAI_API_KEY=…
+# Inputs (optional, unset ones are empty): kubectl -n isoloom-vulnerable-llm-agent create secret generic isoloom-inputs --from-literal=OPENAI_API_KEY=… --from-literal=CTF_FLAG_MAIN=…
 
 apiVersion: v1
 kind: Namespace
@@ -63,19 +63,73 @@ spec:
               name: isoloom-inputs
               key: OPENAI_API_KEY
               optional: true
+        - name: CTF_FLAG_MAIN
+          valueFrom:
+            secretKeyRef:
+              name: isoloom-inputs
+              key: CTF_FLAG_MAIN
+              optional: true
         resources:
           limits:
             cpu: '1'
             memory: 1024Mi
         volumeMounts:
+        - name: vol-data
+          mountPath: /app/data
         - name: isoloom-probe
           mountPath: /.isoloom-probe
           readOnly: true
+      - name: init
+        image: isoloom/vulnerable-llm-agent-agent
+        imagePullPolicy: IfNotPresent
+        command:
+        - sh
+        - -c
+        - until /.isoloom-probe/busybox nc -z -w 2 127.0.0.1 8501; do sleep 2; done && sh /isoloom/scripts/ctf__flag.sh && exec sleep infinity
+        env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: isoloom-inputs
+              key: OPENAI_API_KEY
+              optional: true
+        - name: CTF_FLAG_MAIN
+          valueFrom:
+            secretKeyRef:
+              name: isoloom-inputs
+              key: CTF_FLAG_MAIN
+              optional: true
+        volumeMounts:
+        - name: vol-data
+          mountPath: /app/data
+        - name: isoloom-probe
+          mountPath: /.isoloom-probe
+          readOnly: true
+        - name: scripts
+          mountPath: /isoloom/scripts
       nodeSelector:
         kubernetes.io/arch: amd64
       volumes:
+      - name: vol-data
+        persistentVolumeClaim:
+          claimName: agent-data
+      - name: scripts
+        configMap:
+          name: isoloom-scripts
+          defaultMode: 493
       - name: isoloom-probe
         emptyDir: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: Service

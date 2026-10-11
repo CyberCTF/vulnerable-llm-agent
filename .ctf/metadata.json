@@ -1,7 +1,7 @@
 {
   "title": "Damn Vulnerable LLM Agent",
   "description": "Damn Vulnerable LLM Agent: a LangChain ReAct banking chatbot that fetches the current user's transactions through tools, vulnerable to prompt injection and Thought/Action/Observation injection. Needs an OpenAI API key at launch.",
-  "question": "Make the agent reveal another user's transactions, then get the second flag.",
+  "question": "Make the agent reveal another user's transactions to get the flag, then DocBrown's password.",
   "category": "MISC",
   "difficulty": 2,
   "evidence_kind": "SECRET"

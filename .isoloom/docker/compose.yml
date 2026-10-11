@@ -20,8 +20,12 @@ services:
         ipv4_address: 10.60.36.10
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CTF_FLAG_MAIN: ${CTF_FLAG_MAIN:-}
     ports:
     - ${ISOLOOM_PUBLISH_ADDRESS:-127.0.0.1}:${ISOLOOM_PUBLISH_FIXED:+8501}:8501
+    volumes:
+    - agent-data:/app/data
+    - isoloom-probe-amd64:/.isoloom-probe:ro
     healthcheck:
       test:
       - CMD
@@ -33,8 +37,6 @@ services:
       timeout: 3s
       retries: 60
       start_period: 10s
-    volumes:
-    - isoloom-probe-amd64:/.isoloom-probe:ro
     depends_on:
       isoloom-probe-amd64:
         condition: service_completed_successfully
@@ -48,6 +50,25 @@ services:
       isoloom.managed: 'true'
       isoloom.environment: vulnerable-llm-agent
     restart: unless-stopped
+  agent-init-1:
+    image: isoloom/vulnerable-llm-agent-agent
+    entrypoint:
+    - /bin/sh
+    - /isoloom/init/flag.sh
+    volumes:
+    - ../../ctf/flag.sh:/isoloom/init/flag.sh:ro
+    - agent-data:/app/data
+    network_mode: service:agent
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CTF_FLAG_MAIN: ${CTF_FLAG_MAIN:-}
+    depends_on:
+      agent:
+        condition: service_healthy
+    restart: no
+    labels:
+      isoloom.managed: 'true'
+      isoloom.environment: vulnerable-llm-agent
   isoloom-check:
     image: curlimages/curl:8.11.1
     profiles:
@@ -62,6 +83,8 @@ services:
     depends_on:
       agent:
         condition: service_healthy
+      agent-init-1:
+        condition: service_completed_successfully
     labels:
       isoloom.managed: 'true'
       isoloom.environment: vulnerable-llm-agent
@@ -89,6 +112,10 @@ networks:
       isoloom.managed: 'true'
       isoloom.environment: vulnerable-llm-agent
 volumes:
+  agent-data:
+    labels:
+      isoloom.managed: 'true'
+      isoloom.environment: vulnerable-llm-agent
   isoloom-probe-amd64:
     labels:
       isoloom.managed: 'true'
