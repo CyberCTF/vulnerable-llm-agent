@@ -1,6 +1,13 @@
-# Isoloom: local state of the generated outputs (the generated files themselves are committed)
-.isoloom/**/.vagrant/
-.isoloom/**/.terraform/
-.isoloom/**/.terraform.lock.hcl
-.isoloom/**/*.tfstate*
-.isoloom/**/.isoloom-project*.tgz
+.idea/
+.vscode/*
+__pycache__/
+*.pyc
+.pytest_cache/
+# Deploy targets: local state never goes into the lab repo.
+.isoloom/
+.vagrant/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+.env

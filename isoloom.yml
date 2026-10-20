@@ -8,20 +8,31 @@ version: 1
 name: vulnerable-llm-agent
 
 networks:
-  lab: { cidr: 10.60.36.0/24, internet: true }
+  lab: {cidr: 10.60.36.0/24, internet: true}
 
-inputs: [OPENAI_API_KEY, CTF_FLAG_MAIN]
+inputs:
+  OPENAI_API_KEY: {}
+  CTF_FLAG_MAIN: {}
 
 machines:
   agent:
-    networks: { lab: 10 }
-    services: [{ port: 8501, name: web, http: true, publish: 8501 }]
-    inputs: [OPENAI_API_KEY, CTF_FLAG_MAIN]
-    resources: { cpus: 1, memory_mb: 1024 }
-    volumes: { data: /app/data }   # the transactions database, where ctf/flag.sh writes the flag
-    docker:
+    networks: {lab: 10}
+    resources: {cpus: 1, memory_mb: 1024}
+    volumes: {data: /app/data}     # the transactions database, where ctf/flag.sh writes the flag
+    ports:
+      web:
+        port: 8501
+        protocol: http
+        publish: true
+    files:
+      - path: /run/lab/openai_api_key
+        input: OPENAI_API_KEY
+      - path: /run/lab/ctf_flag_main
+        input: CTF_FLAG_MAIN
+    setup:
+      - ctf/flag.sh
+    app:
       build: build/agent
-      init: [ctf/flag.sh]
 
 checks:
   - name: the Streamlit app answers
@@ -31,6 +42,6 @@ checks:
     http: http://agent:8501/_stcore/health
 
 message: |
-  Damn Vulnerable LLM Agent answers at http://localhost:{{ machines.agent.services.0.publish }}/.
+  Damn Vulnerable LLM Agent answers at {{ machines.agent.ports.web.url }}.
   It needs an OpenAI API key: set OPENAI_API_KEY when you launch the lab, or the chatbot cannot
   answer. Ask for your recent transactions, then make the agent fetch another user's (userId 2).
