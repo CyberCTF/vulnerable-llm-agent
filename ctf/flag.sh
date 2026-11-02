@@ -2,7 +2,7 @@
 # >>> isoloom-1.0 secret-from-file shim (auto-added by convert-lab.py) >>>
 # Inputs now arrive as files (isoloom.yml `files:`), not environment variables.
 # Read each into its old variable when unset, keeping the dev/CI fallback working.
-for __p in OPENAI_API_KEY:/run/lab/openai_api_key CTF_FLAG_MAIN:/run/lab/ctf_flag_main; do
+for __p in CTF_FLAG_MAIN:/run/lab/ctf_flag_main; do
   __n=${__p%%:*}; __f=${__p#*:}
   eval "__v=\${$__n:-}"
   if [ -z "$__v" ] && [ -s "$__f" ]; then
