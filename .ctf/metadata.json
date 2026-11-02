@@ -2,10 +2,10 @@
   "project_name": "cyberlabs-vulnerable-llm-agent",
   "slug": "vulnerable-llm-agent",
   "title": "Damn Vulnerable LLM Agent",
-  "description": "Damn Vulnerable LLM Agent: a LangChain ReAct banking chatbot that fetches the current user's transactions through tools, vulnerable to prompt injection and Thought/Action/Observation injection. Needs an OpenAI API key at launch.",
+  "description": "A bank's support chatbot can look up the signed-in customer's transactions through its tools, and it is told to refuse anyone else's. Make it fetch another customer's transactions.",
   "category": "misc",
   "difficulty": 2,
   "evidence_kind": "SECRET",
   "capabilities": [],
-  "question": "Make the agent reveal another user's transactions to get the flag, then DocBrown's password."
+  "question": "Make the bank's chatbot show you the transactions of another customer (userId 2): the flag is the recipient of one of them."
 }
