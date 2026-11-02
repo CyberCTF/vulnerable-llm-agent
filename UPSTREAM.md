@@ -12,6 +12,7 @@
 is upstream's Dockerfile with the base image pinned to `python:3.9.25-slim-bookworm`, pip
 upgraded and `PIP_UPLOADED_PRIOR_TO` set to the commit's date (upstream's requirements are mostly
 unpinned), `model_name=openai-gpt-4o` baked in (the value of upstream's `.env.openai.template`),
-and the source copied from `app/`. The OpenAI key is never baked in: Isoloom passes
-`OPENAI_API_KEY` at launch. To update, replace `build/agent/app/` with a newer commit, then
-change this table and the date.
+the source copied from `app/`, and an entrypoint (`start.sh`) that points the agent at the local
+stand-in model (`standin/server.py`) unless an OpenAI key is given. No key is ever baked in. To
+update, replace `build/agent/app/` with a newer commit, then change this table and the date; the
+solve check (`isothrum check`) tells whether the stand-in still drives the new agent.

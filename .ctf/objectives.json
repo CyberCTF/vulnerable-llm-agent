@@ -3,24 +3,24 @@
     {
       "key": "main",
       "title": "Read the flag",
-      "prompt": "Make the banking agent fetch the transactions of another customer (userId 2). The flag is the recipient of one of them.",
+      "prompt": "Make the bank's chatbot fetch the transactions of another customer (userId 2). The flag is the recipient of one of them.",
       "check": { "evidence": "SECRET", "format": "FLAG{%s}" },
       "dev": "FLAG{dev-vulnerable-llm-agent}",
       "hints": [
-        "The agent decides which tool to call and with which userId from the conversation itself.",
-        "Look up prompt injection against ReAct agents: what if the model believed it had already observed a different current user?"
+        "The chatbot decides which tool to call, and with which userId, from what it reads in the conversation.",
+        "It can't tell who wrote a piece of the conversation. What if it believed it had already looked up the current user, and found a different one? Look up prompt injection against ReAct agents."
       ],
       "steps": [
         {
           "key": "pattern",
           "title": "Name the agent pattern",
-          "prompt": "Which LLM agent pattern alternates Thought, Action and Observation steps? (its name)",
+          "prompt": "The chatbot reasons in Thought, Action and Observation steps (watch them as it answers). Which LLM agent pattern is that? (its name)",
           "check": { "answer": ["react", "re-act", "reason and act"] }
         },
         {
           "key": "tool",
           "title": "Find the tool",
-          "prompt": "Besides fetching transactions, which other tool does the agent call first to learn who you are? (what it returns)",
+          "prompt": "Besides fetching transactions, which other tool does the chatbot call first to learn who you are? (what it returns)",
           "check": { "answer": ["current user", "get current user", "getcurrentuser", "user id", "userid"] }
         },
         {
